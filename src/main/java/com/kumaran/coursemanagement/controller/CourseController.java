@@ -5,7 +5,6 @@ import com.kumaran.coursemanagement.dto.CourseResponseDto;
 import com.kumaran.coursemanagement.response.ApiResponse;
 import com.kumaran.coursemanagement.service.CourseService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +15,11 @@ import java.util.List;
 @RequestMapping("/courses")
 public class CourseController {
 
-    @Autowired
-    private CourseService service;
+    private final CourseService service;
+
+    public CourseController(CourseService service) {
+        this.service = service;
+    }
 
     @PostMapping
     public ResponseEntity<ApiResponse<CourseResponseDto>> saveCourse(

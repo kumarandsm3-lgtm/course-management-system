@@ -7,7 +7,6 @@ import com.kumaran.coursemanagement.exception.ResourceNotFoundException;
 import com.kumaran.coursemanagement.mapper.CourseMapper;
 import com.kumaran.coursemanagement.repository.CourseRepository;
 import com.kumaran.coursemanagement.service.CourseService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,11 +18,13 @@ import java.util.List;
 @Service
 public class CourseServiceImpl implements CourseService {
 
-    @Autowired
-    private CourseRepository repository;
+    private final CourseRepository repository;
+    private final CourseMapper mapper;
 
-    @Autowired
-    private CourseMapper mapper;
+    public CourseServiceImpl(CourseRepository repository, CourseMapper mapper) {
+        this.repository = repository;
+        this.mapper = mapper;
+    }
 
     @Override
     public CourseResponseDto saveCourse(CourseRequestDto requestDto) {
@@ -105,6 +106,7 @@ public class CourseServiceImpl implements CourseService {
                 .map(mapper::toResponseDto)
                 .toList();
     }
+
     @Override
     public List<CourseResponseDto> searchCourses(String keyword) {
 
