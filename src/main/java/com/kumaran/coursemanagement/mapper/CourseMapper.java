@@ -8,32 +8,32 @@ import org.springframework.stereotype.Component;
 @Component
 public class CourseMapper {
 
-    // RequestDTO -> Entity
-    public Course toEntity(CourseRequestDto dto) {
+    public Course toEntity(CourseRequestDto requestDto) {
 
         Course course = new Course();
 
-        course.setCourseName(dto.getCourseName());
-        course.setCourseFee(dto.getCourseFee());
-        course.setCourseDuration(dto.getCourseDuration());
-        course.setCourseType(dto.getCourseType());
+        course.setCourseName(requestDto.getCourseName());
+        course.setCourseFee(requestDto.getCourseFee());
+        course.setCourseDuration(requestDto.getCourseDuration());
+        course.setCourseType(requestDto.getCourseType());
 
         return course;
     }
 
-    // Entity -> ResponseDTO
     public CourseResponseDto toResponseDto(Course course) {
 
-        CourseResponseDto response = new CourseResponseDto();
+        CourseResponseDto responseDto = new CourseResponseDto();
 
-        response.setId(course.getId());
-        response.setCourseName(course.getCourseName());
-        response.setCourseFee(course.getCourseFee());
-        response.setCourseDuration(course.getCourseDuration());
-        response.setCourseType(course.getCourseType());
-        response.setTrainerName(course.getTrainerName());
-        response.setActive(course.isActive());
+        responseDto.setId(course.getId());
+        responseDto.setCourseName(course.getCourseName());
+        responseDto.setCourseFee(course.getCourseFee());
+        responseDto.setCourseDuration(course.getCourseDuration());
+        responseDto.setCourseType(course.getCourseType());
+        responseDto.setTrainerName(course.getTrainerName());
+        responseDto.setActive(course.isActive());
+        responseDto.setCreatedAt(course.getCreatedAt());
+        responseDto.setUpdatedAt(course.getUpdatedAt());
 
-        return response;
+        return responseDto;
     }
 }

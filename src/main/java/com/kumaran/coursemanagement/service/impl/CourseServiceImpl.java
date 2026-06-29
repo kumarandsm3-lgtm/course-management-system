@@ -8,10 +8,7 @@ import com.kumaran.coursemanagement.mapper.CourseMapper;
 import com.kumaran.coursemanagement.repository.CourseRepository;
 import com.kumaran.coursemanagement.service.CourseService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,7 +28,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public CourseResponseDto saveCourse(CourseRequestDto requestDto) {
 
-        log.info("Creating new course with name : {}", requestDto.getCourseName());
+        log.info("Creating new course : {}", requestDto.getCourseName());
 
         Course course = mapper.toEntity(requestDto);
 
@@ -48,9 +45,9 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public List<CourseResponseDto> getAllCourses() {
 
-        log.info("Fetching all courses");
+        log.info("Fetching all active courses");
 
-        List<Course> courses = repository.findAll();
+        List<Course> courses = repository.findByActiveTrue();
 
         return courses.stream()
                 .map(mapper::toResponseDto)
@@ -62,11 +59,9 @@ public class CourseServiceImpl implements CourseService {
 
         log.info("Fetching course with id : {}", id);
 
-        Course course = repository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Course not found with id : {}", id);
-                    return new ResourceNotFoundException("Course not found with id : " + id);
-                });
+        Course course = repository.findByIdAndActiveTrue(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Course not found with id : " + id));
 
         return mapper.toResponseDto(course);
     }
@@ -76,11 +71,9 @@ public class CourseServiceImpl implements CourseService {
 
         log.info("Updating course with id : {}", id);
 
-        Course course = repository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Course not found with id : {}", id);
-                    return new ResourceNotFoundException("Course not found with id : " + id);
-                });
+        Course course = repository.findByIdAndActiveTrue(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Course not found with id : " + id));
 
         course.setCourseName(requestDto.getCourseName());
         course.setCourseFee(requestDto.getCourseFee());
@@ -89,7 +82,7 @@ public class CourseServiceImpl implements CourseService {
 
         Course updatedCourse = repository.save(course);
 
-        log.info("Course updated successfully with id : {}", id);
+        log.info("Course updated successfully");
 
         return mapper.toResponseDto(updatedCourse);
     }
@@ -97,17 +90,17 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public void deleteCourse(Long id) {
 
-        log.info("Deleting course with id : {}", id);
+        log.info("Soft deleting course : {}", id);
 
-        Course course = repository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Course not found with id : {}", id);
-                    return new ResourceNotFoundException("Course not found with id : " + id);
-                });
+        Course course = repository.findByIdAndActiveTrue(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Course not found with id : " + id));
 
-        repository.delete(course);
+        course.setActive(false);
 
-        log.info("Course deleted successfully with id : {}", id);
+        repository.save(course);
+
+        log.info("Course soft deleted successfully");
     }
 
     @Override
@@ -116,9 +109,6 @@ public class CourseServiceImpl implements CourseService {
             int size,
             String sortBy,
             String direction) {
-
-        log.info("Fetching courses with page : {}, size : {}, sortBy : {}, direction : {}",
-                page, size, sortBy, direction);
 
         Sort sort = direction.equalsIgnoreCase("desc")
                 ? Sort.by(sortBy).descending()
@@ -137,12 +127,10 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public List<CourseResponseDto> searchCourses(String keyword) {
 
-        log.info("Searching courses with keyword : {}", keyword);
+        log.info("Searching courses : {}", keyword);
 
         List<Course> courses =
                 repository.findByCourseNameContainingIgnoreCase(keyword);
-
-        log.info("Search completed. Total matched courses : {}", courses.size());
 
         return courses.stream()
                 .map(mapper::toResponseDto)

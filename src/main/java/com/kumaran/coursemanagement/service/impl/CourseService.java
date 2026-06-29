@@ -23,5 +23,6 @@ public interface CourseService {
             String sortBy,
             String direction
     );
+
     List<CourseResponseDto> searchCourses(String keyword);
 }
