@@ -16,4 +16,12 @@ public interface CourseService {
     CourseResponseDto updateCourse(Long id, CourseRequestDto requestDto);
 
     void deleteCourse(Long id);
+
+    List<CourseResponseDto> getCoursesWithPagination(
+            int page,
+            int size,
+            String sortBy,
+            String direction
+    );
+    List<CourseResponseDto> searchCourses(String keyword);
 }
