@@ -1,13 +1,15 @@
 package com.kumaran.coursemanagement.config;
 
 import com.kumaran.coursemanagement.security.JwtFilter;
-import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -25,8 +27,35 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
+
+                        // Public APIs
+                        .requestMatchers(
+                                "/auth/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**"
+                        ).permitAll()
+
+                        // USER & ADMIN
+                        .requestMatchers(HttpMethod.GET, "/courses/**")
+                        .hasAnyRole("USER", "ADMIN")
+
+                        // ADMIN only
+                        .requestMatchers(HttpMethod.POST, "/courses/**")
+                        .hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.PUT, "/courses/**")
+                        .hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.DELETE, "/courses/**")
+                        .hasRole("ADMIN")
+
+                        .anyRequest()
+                        .authenticated()
                 )
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
@@ -44,7 +73,6 @@ public class SecurityConfig {
                         .addSecuritySchemes(
                                 "bearerAuth",
                                 new SecurityScheme()
-                                        .name("bearerAuth")
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
                                         .bearerFormat("JWT")

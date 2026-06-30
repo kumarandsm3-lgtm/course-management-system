@@ -15,7 +15,10 @@ public class AuthServiceImpl implements AuthService {
     private final AppUserRepository repository;
     private final JwtService jwtService;
 
-    public AuthServiceImpl(AppUserRepository repository, JwtService jwtService) {
+    public AuthServiceImpl(
+            AppUserRepository repository,
+            JwtService jwtService) {
+
         this.repository = repository;
         this.jwtService = jwtService;
     }
@@ -28,6 +31,7 @@ public class AuthServiceImpl implements AuthService {
         user.setName(requestDto.getName());
         user.setEmail(requestDto.getEmail());
         user.setPassword(requestDto.getPassword());
+        user.setRole("USER");
 
         repository.save(user);
 
