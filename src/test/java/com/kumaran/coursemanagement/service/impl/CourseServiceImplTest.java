@@ -3,6 +3,7 @@ package com.kumaran.coursemanagement.service.impl;
 import com.kumaran.coursemanagement.dto.CourseRequestDto;
 import com.kumaran.coursemanagement.dto.CourseResponseDto;
 import com.kumaran.coursemanagement.entity.Course;
+import com.kumaran.coursemanagement.exception.ResourceNotFoundException;
 import com.kumaran.coursemanagement.mapper.CourseMapper;
 import com.kumaran.coursemanagement.repository.CourseRepository;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 class CourseServiceImplTest {
@@ -191,5 +193,24 @@ class CourseServiceImplTest {
         Mockito.verify(repository).findByActiveTrue();
         Mockito.verify(mapper).toResponseDto(course1);
         Mockito.verify(mapper).toResponseDto(course2);
+    }
+
+    @Test
+    void getCourseById_whenCourseNotFound_shouldThrowException() {
+
+        Long courseId = 99L;
+
+        Mockito.when(repository.findByIdAndActiveTrue(courseId))
+                .thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.getCourseById(courseId)
+        );
+
+        assertNotNull(exception);
+
+        Mockito.verify(repository).findByIdAndActiveTrue(courseId);
+        Mockito.verifyNoInteractions(mapper);
     }
 }
