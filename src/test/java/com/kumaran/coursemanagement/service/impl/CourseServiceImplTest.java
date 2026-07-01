@@ -12,6 +12,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -30,21 +32,18 @@ class CourseServiceImplTest {
     @Test
     void saveCourse_shouldReturnCourseResponse() {
 
-        // Request DTO
         CourseRequestDto requestDto = new CourseRequestDto();
         requestDto.setCourseName("Java Backend Development");
         requestDto.setCourseFee(15000.0);
         requestDto.setCourseDuration(4);
         requestDto.setCourseType("Online");
 
-        // Entity before save
         Course course = new Course();
         course.setCourseName("Java Backend Development");
         course.setCourseFee(15000.0);
         course.setCourseDuration(4);
         course.setCourseType("Online");
 
-        // Entity after save
         Course savedCourse = new Course();
         savedCourse.setId(1L);
         savedCourse.setCourseName("Java Backend Development");
@@ -54,7 +53,6 @@ class CourseServiceImplTest {
         savedCourse.setTrainerName("Rahul");
         savedCourse.setActive(true);
 
-        // Response DTO
         CourseResponseDto responseDto = new CourseResponseDto();
         responseDto.setId(1L);
         responseDto.setCourseName("Java Backend Development");
@@ -63,15 +61,12 @@ class CourseServiceImplTest {
         responseDto.setCourseType("Online");
         responseDto.setTrainerName("Rahul");
 
-        // Mock behavior
         Mockito.when(mapper.toEntity(requestDto)).thenReturn(course);
         Mockito.when(repository.save(course)).thenReturn(savedCourse);
         Mockito.when(mapper.toResponseDto(savedCourse)).thenReturn(responseDto);
 
-        // Actual service method call
         CourseResponseDto result = service.saveCourse(requestDto);
 
-        // Result checking
         assertNotNull(result);
         assertEquals(1L, result.getId());
         assertEquals("Java Backend Development", result.getCourseName());
@@ -80,9 +75,50 @@ class CourseServiceImplTest {
         assertEquals("Online", result.getCourseType());
         assertEquals("Rahul", result.getTrainerName());
 
-        // Method call checking
         Mockito.verify(mapper).toEntity(requestDto);
         Mockito.verify(repository).save(course);
         Mockito.verify(mapper).toResponseDto(savedCourse);
+    }
+
+    @Test
+    void getCourseById_shouldReturnCourseResponse() {
+
+        Long courseId = 1L;
+
+        Course course = new Course();
+        course.setId(courseId);
+        course.setCourseName("Java Backend Development");
+        course.setCourseFee(15000.0);
+        course.setCourseDuration(4);
+        course.setCourseType("Online");
+        course.setTrainerName("Rahul");
+        course.setActive(true);
+
+        CourseResponseDto responseDto = new CourseResponseDto();
+        responseDto.setId(courseId);
+        responseDto.setCourseName("Java Backend Development");
+        responseDto.setCourseFee(15000.0);
+        responseDto.setCourseDuration(4);
+        responseDto.setCourseType("Online");
+        responseDto.setTrainerName("Rahul");
+
+        Mockito.when(repository.findByIdAndActiveTrue(courseId))
+                .thenReturn(Optional.of(course));
+
+        Mockito.when(mapper.toResponseDto(course))
+                .thenReturn(responseDto);
+
+        CourseResponseDto result = service.getCourseById(courseId);
+
+        assertNotNull(result);
+        assertEquals(courseId, result.getId());
+        assertEquals("Java Backend Development", result.getCourseName());
+        assertEquals(15000.0, result.getCourseFee());
+        assertEquals(4, result.getCourseDuration());
+        assertEquals("Online", result.getCourseType());
+        assertEquals("Rahul", result.getTrainerName());
+
+        Mockito.verify(repository).findByIdAndActiveTrue(courseId);
+        Mockito.verify(mapper).toResponseDto(course);
     }
 }
