@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -211,6 +212,32 @@ class CourseServiceImplTest {
         assertNotNull(exception);
 
         Mockito.verify(repository).findByIdAndActiveTrue(courseId);
+        Mockito.verifyNoInteractions(mapper);
+    }
+
+    @Test
+    void deleteCourse_shouldSoftDeleteCourse() {
+
+        Long courseId = 1L;
+
+        Course course = new Course();
+        course.setId(courseId);
+        course.setCourseName("Java Backend Development");
+        course.setCourseFee(15000.0);
+        course.setCourseDuration(4);
+        course.setCourseType("Online");
+        course.setTrainerName("Rahul");
+        course.setActive(true);
+
+        Mockito.when(repository.findByIdAndActiveTrue(courseId))
+                .thenReturn(Optional.of(course));
+
+        service.deleteCourse(courseId);
+
+        assertFalse(course.isActive());
+
+        Mockito.verify(repository).findByIdAndActiveTrue(courseId);
+        Mockito.verify(repository).save(course);
         Mockito.verifyNoInteractions(mapper);
     }
 }
