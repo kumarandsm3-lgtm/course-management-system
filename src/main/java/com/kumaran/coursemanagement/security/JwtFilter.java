@@ -28,6 +28,17 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+
+        String path = request.getServletPath();
+
+        return path.startsWith("/auth/")
+                || path.startsWith("/swagger-ui/")
+                || path.startsWith("/v3/api-docs")
+                || path.equals("/swagger-ui.html");
+    }
+
+    @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -43,8 +54,6 @@ public class JwtFilter extends OncePerRequestFilter {
                 String token = header.substring(7);
 
                 String email = jwtService.extractEmail(token);
-
-                System.out.println("Email from token : " + email);
 
                 if (email != null &&
                         SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -68,15 +77,11 @@ public class JwtFilter extends OncePerRequestFilter {
 
                         SecurityContextHolder.getContext()
                                 .setAuthentication(authToken);
-
-                        System.out.println("Authentication set successfully");
                     }
                 }
             }
 
         } catch (Exception e) {
-
-            System.out.println("JWT Error : " + e.getMessage());
             SecurityContextHolder.clearContext();
         }
 

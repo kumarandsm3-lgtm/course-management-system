@@ -1,0 +1,32 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+.logo {
+  text-decoration: none;
+  color: #111827;
+}
+.form-message {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #fef3c7;
+  color: #92400e;
+  font-weight: 700;
+  font-size: 14px;
+}
+.login-btn,
+.primary-btn,
+.secondary-btn {
+  text-decoration: none;
+  display: inline-block;
+}
