@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -120,5 +121,75 @@ class CourseServiceImplTest {
 
         Mockito.verify(repository).findByIdAndActiveTrue(courseId);
         Mockito.verify(mapper).toResponseDto(course);
+    }
+
+    @Test
+    void getAllCourses_shouldReturnCourseList() {
+
+        Course course1 = new Course();
+        course1.setId(1L);
+        course1.setCourseName("Java Backend Development");
+        course1.setCourseFee(15000.0);
+        course1.setCourseDuration(4);
+        course1.setCourseType("Online");
+        course1.setTrainerName("Rahul");
+        course1.setActive(true);
+
+        Course course2 = new Course();
+        course2.setId(2L);
+        course2.setCourseName("React Frontend Development");
+        course2.setCourseFee(12000.0);
+        course2.setCourseDuration(3);
+        course2.setCourseType("Online");
+        course2.setTrainerName("Arun");
+        course2.setActive(true);
+
+        CourseResponseDto responseDto1 = new CourseResponseDto();
+        responseDto1.setId(1L);
+        responseDto1.setCourseName("Java Backend Development");
+        responseDto1.setCourseFee(15000.0);
+        responseDto1.setCourseDuration(4);
+        responseDto1.setCourseType("Online");
+        responseDto1.setTrainerName("Rahul");
+
+        CourseResponseDto responseDto2 = new CourseResponseDto();
+        responseDto2.setId(2L);
+        responseDto2.setCourseName("React Frontend Development");
+        responseDto2.setCourseFee(12000.0);
+        responseDto2.setCourseDuration(3);
+        responseDto2.setCourseType("Online");
+        responseDto2.setTrainerName("Arun");
+
+        Mockito.when(repository.findByActiveTrue())
+                .thenReturn(List.of(course1, course2));
+
+        Mockito.when(mapper.toResponseDto(course1))
+                .thenReturn(responseDto1);
+
+        Mockito.when(mapper.toResponseDto(course2))
+                .thenReturn(responseDto2);
+
+        List<CourseResponseDto> result = service.getAllCourses();
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+
+        assertEquals(1L, result.get(0).getId());
+        assertEquals("Java Backend Development", result.get(0).getCourseName());
+        assertEquals(15000.0, result.get(0).getCourseFee());
+        assertEquals(4, result.get(0).getCourseDuration());
+        assertEquals("Online", result.get(0).getCourseType());
+        assertEquals("Rahul", result.get(0).getTrainerName());
+
+        assertEquals(2L, result.get(1).getId());
+        assertEquals("React Frontend Development", result.get(1).getCourseName());
+        assertEquals(12000.0, result.get(1).getCourseFee());
+        assertEquals(3, result.get(1).getCourseDuration());
+        assertEquals("Online", result.get(1).getCourseType());
+        assertEquals("Arun", result.get(1).getTrainerName());
+
+        Mockito.verify(repository).findByActiveTrue();
+        Mockito.verify(mapper).toResponseDto(course1);
+        Mockito.verify(mapper).toResponseDto(course2);
     }
 }
